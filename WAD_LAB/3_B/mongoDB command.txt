@@ -1,0 +1,176 @@
+1.make folder simple-api
+
+2.open in vs code
+
+3.in simple api
+	-create folder model and 
+	-in models user.js
+	-in outside server.js and  .env
+
+4.open terminal and type command
+	-npm init -y
+	-npm install express mongoose dotenv nodemon
+
+5.in user.js
+
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  age: {
+    type: Number,
+    required: true
+  }
+});
+
+module.exports = mongoose.model("User", userSchema);
+
+6.in .env
+	in this  we connect  to mongodb
+--------************************
+
+MONGO_URL=mongodb://127.0.0.1:27017/simpleapi
+PORT=5000
+
+7.in server.js
+
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+const User = require("./models/User");
+
+dotenv.config();
+
+const app = express();
+
+app.use(express.json());
+
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URL)
+.then(() => {
+    console.log("MongoDB Connected");
+})
+.catch((err) => {
+    console.log(err);
+});
+
+
+// CREATE API
+app.post("/create", async (req, res) => {
+    try {
+
+        const user = new User({
+            name: req.body.name,
+            age: req.body.age
+        });
+
+        const savedUser = await user.save();
+
+        res.status(201).json({
+            message: "User Created",
+            data: savedUser
+        });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+
+// UPDATE API
+app.put("/update/:id", async (req, res) => {
+    try {
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                age: req.body.age
+            },
+            { new: true }
+        );
+
+        res.status(200).json({
+            message: "User Updated",
+            data: updatedUser
+        });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+//DELETE API
+
+app.delete("/delete/:id", async (req, res) => {
+
+    try {
+
+        await User.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            message: "User Deleted Successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json(error);
+
+    }
+
+});
+
+
+
+// Server Start
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server Running on Port ${PORT}`);
+});
+
+8.enter command
+
+***In package.JSON
+{
+  "name": "simple-api", //simple-api is folder name
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  }
+}
+
+	-------	OR-------
+
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js"
+}
+
+* npm install nodemon
+
+* npm run dev
+
+9.open thunder client.
+	-enter url--- http://localhost:5000/create
+	-select post
+	
+	-enter data in body in json
+	--{
+ 	 	"name": "Sanjay",
+ 		 "age": 21
+	}
+
+ **for update
+ 	select put --url--- http://localhost:5000/update/id
+
+ **for delete
+	select delete --url--- http://localhost:5000/delete/id
+

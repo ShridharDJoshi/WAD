@@ -1,0 +1,231 @@
+1] first check node installation:
+
+> node -v
+> npm -v
+
+2] install angular and check:
+
+> npm install -g @angular/cli
+> ng version
+
+Go to vs code
+
+3] go to project folder:
+
+> cd folder name
+
+4] now create angular app and check:
+
+> ng new 2C
+> CSS [y]
+> SSG [n]
+> cd 2C
+> ng serve
+
+
+5] Create components: These components are created inside the 2C/src/app
+
+> ng generate component register
+> ng generate component login
+> ng generate component dashboard
+> ng g s auth
+
+
+6] Replace app.route.ts code with:
+
+import { Routes } from '@angular/router';
+import { LoginComponent } from './login/login';
+import { RegisterComponent } from './register/register';
+import { ProfileComponent } from './dashboard/dashboard';
+
+export const routes: Routes = [
+  { path: '', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'profile', component: ProfileComponent }
+];
+
+
+
+7] Replace app.html with:
+
+<h1>User App</h1>
+
+<nav>
+  <a routerLink="/">Login</a> |
+  <a routerLink="/register">Register</a> |
+  <a routerLink="/profile">Profile</a>
+</nav>
+
+<hr>
+
+<router-outlet></router-outlet>
+
+
+
+8] Replace app.ts code with:
+
+import { Component, signal } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, RouterLink],
+  templateUrl: './app.html',
+  styleUrl: './app.css'
+})
+export class App {
+  protected readonly title = signal('2C');
+}
+
+
+9] Replace auth.ts code with:
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+
+  register(user: any) {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  login(email: string, password: string): boolean {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.email === email && user.password === password;
+  }
+
+  getUser() {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('user');
+  }
+}
+
+
+
+10] Replace register.component.html code with:
+
+<h2>Register</h2>
+
+<input placeholder="Name" [(ngModel)]="user.name"><br><br>
+<input placeholder="Email" [(ngModel)]="user.email"><br><br>
+<input type="password" placeholder="Password" [(ngModel)]="user.password"><br><br>
+
+<button (click)="onRegister()">Register</button>
+
+
+11] Replace register.ts with:
+
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth';
+
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './register.html',
+  styleUrl: './register.css'
+})
+export class RegisterComponent {
+
+  user = { name: '', email: '', password: '' };
+
+  constructor(private auth: AuthService, private router: Router) {}
+
+  onRegister() {
+    this.auth.register(this.user);
+    alert('Registered successfully');
+    this.router.navigate(['/']);
+  }
+}
+
+
+
+12] Replace login.component.html code with :
+
+<h2>Login</h2>
+
+<input placeholder="Email" [(ngModel)]="email"><br><br>
+<input type="password" placeholder="Password" [(ngModel)]="password"><br><br>
+
+<button (click)="onLogin()">Login</button>
+
+<p>
+  New user? <a routerLink="/register">Register</a>
+</p>
+
+
+
+
+13] Replace login.ts with:
+
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule, RouterLink],
+  templateUrl: './login.html',
+  styleUrl: './login.css'
+})
+export class LoginComponent {
+
+  email = '';
+  password = '';
+
+  constructor(private auth: AuthService, private router: Router) {}
+
+  onLogin() {
+    if (this.auth.login(this.email, this.password)) {
+      alert('Login successful');
+      this.router.navigate(['/profile']);
+    } else {
+      alert('Invalid credentials');
+    }
+  }
+}
+
+
+
+14] Replace dashboard.component.html with :
+
+<h2>Profile</h2>
+
+<p>Name: {{user.name}}</p>
+<p>Email: {{user.email}}</p>
+
+
+
+17] Replace dashboard.ts with:
+
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth';
+
+@Component({
+  selector: 'app-profile',
+  templateUrl: './dashboard.html'
+})
+export class ProfileComponent implements OnInit {
+
+  user: any;
+
+  constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    this.user = this.auth.getUser();
+  }
+}
+
+18] Run the application:
+
+> ng serve
+

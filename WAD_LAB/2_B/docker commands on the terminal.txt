@@ -1,0 +1,7 @@
+docker commands on the terminal:
+
+> git clone enter git_repo link
+
+> docker build -t t1 .
+
+> docker run -d -p 8080:80 t1

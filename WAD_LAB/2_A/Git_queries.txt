@@ -1,0 +1,21 @@
+OPEN THE TERMINAL
+
+> git init
+
+> git config --global user.name "Enter User name"
+
+> git config --global user.email "Enter email"
+
+> cd file_floder_name
+
+> git add file_name
+
+> git commit -m "First"
+
+> git remote add origin repo link
+
+> git branch -M main
+
+> git push -u origin main
+
+> if asked for authentication then enter the username and password given by the prof.
